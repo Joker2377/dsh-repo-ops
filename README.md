@@ -118,7 +118,7 @@ test/          全部注入假 runner，不碰真實 CLI 與網路
 git clone https://github.com/Joker2377/dsh-repo-ops.git
 cd dsh-repo-ops
 npm run check          # 形狀檢查：manifest / patch / 工具面 / README 段落 / 測試是否離線
-npm test               # 逐檔 import 跑完 152 個測試，不需要 npm install
+npm test               # 逐檔 import 跑完 153 個測試，不需要 npm install
 npm run test:spawn     # 同一套測試改用 node --test（每檔一個子程序；受限沙箱內會 EPERM）
 node scripts/smoke.mjs                 # 真的 git：在暫存 repo 上跑完讀寫流程，不碰網路
 $env:SMOKE_ONLINE=1; node scripts/smoke.mjs   # 再加唯讀 gh：pr / ci list+view / issue / release / tags
@@ -132,11 +132,11 @@ scripts/check.mjs 是 CI 的第一道關卡：它檢查「裝得起來嗎」這�
 
 | 面 | 證據 |
 |---|---|
-| 152 個單元／整合測試 | 假 runner；CI 矩陣 ubuntu-latest + windows-latest × node 22/24 |
+| 153 個單元／整合測試 | 假 runner；CI 矩陣 4 個 job（ubuntu-latest + windows-latest × node 22/24）全綠 |
 | 真的 git | `node scripts/smoke.mjs`：init、status、diff、commit、branch、push 失敗訊息，全部在暫存 repo 上實際跑過 |
 | 真的 gh（唯讀） | `node scripts/verify-gh.mjs` 13/13：authStatus、repoInfo、prList、prView、prChecks、ciList、ciView、ciStatus、issueList、issueView、releaseList、releaseView、workflowList 對 `Joker2377/dsh-plugin-updates` 與 `cli/cli` 實際拿到資料 |
-| 寫入型 gh（create / merge / comment / rerun / release） | **未在真實 repo 上執行**：只驗到 argv 與 confirm 閘門，沒拿公開 repo 做寫入 |
-| 安裝進 profile | **未安裝**：0.1.0 只到 repo 與 release 這一層 |
+| 真的 gh（寫入） | `repo_push` 推過這個 repo 自己的 main 與 tag（含 `--set-upstream` 後的 push）；`repo_release` 的 create/merge/rerun 等動作**仍未在真實 repo 上執行**，只驗到 argv 與 confirm 閘門 |
+| 打包與安裝 | release 上的 `dsh-repo-ops-0.1.0.tgz`（58 KB，只含 lib/、patch、README、LICENSE）已用 `pnpm add <tgz>` 裝進一個**暫存 profile**，`apply()` 註冊 9 個工具、dispose 兩次也不重複；該 profile 用完已刪除。**桌面版 profile 尚未安裝** |
 
 ## 已知限制
 
