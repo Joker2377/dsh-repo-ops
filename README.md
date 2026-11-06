@@ -43,7 +43,7 @@ repo 首頁：https://github.com/Joker2377/dsh-repo-ops
       config: {}
 ```
 
-可用的 config 鍵（定義在 lib/index.js 的 Config）：
+可用的 config 鍵（lib/index.js 的 `Config` 是 cordis 的 standard-schema：型別不對或打錯鍵名會回可讀的 issues，而不是靜默吃掉）：
 
 | 鍵 | 預設 | 意義 |
 |---|---|---|
@@ -87,6 +87,8 @@ repo_pr(action=view)               -> 含未結的 review 執行緒，要回話�
 **repo_pr(action=view) 找不到 PR** — 該分支沒有開著的 PR；改用 `repo_pr(action=list)`，或直接給 `number`。
 
 **CI 的 watch 回報 timedOut** — 是等待到期而 run 還在跑，不是失敗。再呼叫一次 watch 就續等。
+
+**升級到 0.1.2 之前那個版本載入就炸（`Cannot read properties of undefined (reading 'validate')`）** — 0.1.1 把 `Config` 寫成普通的 `{ type, default }` 物件，但 cordis 呼叫的是 `Config['~standard'].validate(...)`，於是外掛在 profile 載入階段就拋錯、九個工具一個都不會出現。0.1.2 起 `Config` 是真正的 standard-schema，並有測試直接跑 cordis 那四行 `resolveConfig`。裝了 0.1.1 的話先 `plugin_manager` 移除再重裝。
 
 ## 運作原理
 

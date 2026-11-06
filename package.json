@@ -1,6 +1,6 @@
 {
   "name": "dsh-repo-ops",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "GitHub and git operations as structured tools: repo status, commits, branches, push, PRs, CI runs and logs, issues, releases.",
   "type": "module",
   "main": "./lib/index.js",

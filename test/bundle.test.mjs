@@ -27,7 +27,32 @@ test('bundle 宣告 DSH 需要的 identity 與 service', () => {
 	assert.equal(name, 'dsh-repo-ops')
 	assert.deepEqual(inject, ['tools'])
 	assert.ok(Config && typeof Config === 'object')
-}) 
+})
+
+test('Config 是 cordis 真的會呼叫的 standard-schema', () => {
+	// cordis 的 resolveConfig 就是這四行（lib/fiber.js）：沒有 ~standard 就
+	// dereference undefined，整個外掛在 profile 載入時就掛掉 —— 0.1.1 的實際死因。
+	const resolve = raw => {
+		assert.ok(Config['~standard'], 'Config 必須有 ~standard')
+		const result = Config['~standard'].validate(raw)
+		assert.equal('then' in result, false, '不能是非同步驗證')
+		if (result.issues) throw new TypeError('invalid config')
+		return result.value
+	}
+	const defaults = resolve(undefined)
+	assert.equal(defaults.timeoutMs, DEFAULT_SETTINGS.timeoutMs)
+	assert.equal(defaults.readOnly, false)
+	const tuned = resolve({ timeoutMs: 90000, readOnly: true })
+	assert.equal(tuned.timeoutMs, 90000)
+	assert.equal(tuned.readOnly, true)
+	assert.throws(() => resolve({ timeoutMs: 'soon' }), /invalid config/)
+	assert.throws(() => resolve({ timeoutMS: 90000 }), /invalid config/, '打錯的鍵要變成可讀 issues，而不是被默默忽略')
+	assert.throws(() => resolve('nope'), /invalid config/)
+	const issues = Config['~standard'].validate({ timeoutMs: 'soon', nope: 1 }).issues
+	assert.equal(issues.length, 2)
+	assert.match(issues[0].message, /timeoutMs 必須是 number/)
+	assert.match(issues[1].message, /不認識的 config 鍵 nope/)
+})
 
 test('apply() 在 ctx.effect 內註冊九個工具，名字與 README 一致', () => {
 	const { ctx, registered } = fakeContext()
