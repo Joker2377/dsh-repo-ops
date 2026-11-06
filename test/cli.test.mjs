@@ -30,6 +30,14 @@ test('PATH 命中就不看安装位置', () => {
 	assert.equal(found.path.replace(/\\/g, '/'), 'D:/bin/git.exe')
 }) 
 
+test('PATH 用哪種分隔符看目標平台，不看跑測試的主機', () => {
+	// 這條在 Linux CI 上抓到的：主機是 posix 時用 ':' 切 'C:/nope;D:/bin'，
+	// 'D:/bin' 會被切成 'D' 與 '/bin'。platform=win32 就必須用 ';'。
+	const found = resolveBinary('git', { env: { PATH: 'C:/nope;D:/bin' }, exists: file => file.replace(/\\/g, '/') === 'D:/bin/git.exe', platform: 'win32' })
+	assert.equal(found.source, 'path')
+	assert.equal(found.path.replace(/\\/g, '/'), 'D:/bin/git.exe')
+})
+
 test('PATH 找不到时退回已知安装位置', () => {
 	const found = resolveBinary('gh', { env: { PATH: 'C:/nothing' }, exists: file => file === GH_INSTALL, home: () => 'C:/Users/jimmy', platform: 'win32' })
 	assert.equal(found.source, 'candidate')
