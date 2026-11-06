@@ -1,5 +1,8 @@
 # dsh-repo-ops
 
+![test](https://github.com/Joker2377/dsh-repo-ops/workflows/test/badge.svg)
+![release](https://github.com/Joker2377/dsh-repo-ops/workflows/release/badge.svg)
+
 把 git 與 GitHub 的日常工作包成九個結構化工具，讓 agent 用一次呼叫就知道「我在哪裡、改了什麼、PR 與 CI 現在怎樣」，而不是連續跑十條 shell 指令再自己解析輸出。
 
 
