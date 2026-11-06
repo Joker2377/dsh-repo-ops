@@ -1,0 +1,12 @@
+# dsh-repo-ops — git 與 GitHub 操作的結構化工具bundle
+#
+# 載入 profile 時插入一列：entry id 是 repo-ops，模組是套件名。
+# config 的鍵見 lib/index.js 的 Config；留空即用預設值。
+- insert:
+    - id: repo-ops
+      name: dsh-repo-ops
+      config: {}
+      # 想改預設就把這列換成，例如：
+      # config:
+      #   timeoutMs: 90000
+      #   ghPath: 'C:/Program Files/GitHub CLI/gh.exe'

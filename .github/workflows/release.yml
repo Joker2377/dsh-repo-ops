@@ -1,0 +1,31 @@
+name: release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+      # tag 與 package.json 版本不同就停：本地測試只會跑一次，tag 才是對外承諾。
+      - name: Tag matches package.json
+        run: |
+          test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      # 不安裝依賴：測試只 import node: builtins 與 lib/。
+      - name: Check, syntax and tests
+        run: node scripts/check.mjs && node --check lib/index.js && npm test
+      - name: Pack
+        run: npm pack
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" ./*.tgz --generate-notes --title "$GITHUB_REF_NAME"
